@@ -3,14 +3,19 @@ import React from 'react';
 import './scss/TodoMain.scss';
 import TodoItem from "./TodoItem";
 
-const TodoMain = ({todoList, onRemove}) => {
+const TodoMain = ({todoList, onRemove, onCheck}) => {
 
 
 
     return (
         <ul className='todo-list'>
             {
-                todoList.map(todo => <TodoItem key={todo.id} item={todo} onRemove={onRemove} />)
+                todoList.map(todo => <TodoItem
+                    key={todo.id}
+                    item={todo}
+                    onRemove={onRemove}
+                    onCheck={onCheck}
+                />)
                 // map을 사용해서 할때는 key를 꼭넣어야함 수백개씩넣을때 성능이슈를 일으킴
             }
         </ul>
