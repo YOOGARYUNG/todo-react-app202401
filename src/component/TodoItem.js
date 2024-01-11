@@ -4,11 +4,16 @@ import cn from 'classnames';
 
 import './scss/TodoItem.scss'
 
-const TodoItem = ({item}) => {
+const TodoItem = ({item, onRemove}) => {
 
     const {id, title, done} = item;
 
     // console.log(props);
+
+    const removeHandler = e => {
+        onRemove(id);
+
+    };
 
     return (
         <li className='todo-list-item'>
@@ -16,7 +21,7 @@ const TodoItem = ({item}) => {
                 {item.done && <MdDone/>} {/* props.done이 true면 */}
             </div>
             <span className={cn('text', {finish : done})}>{item.title}</span>
-            <div className='remove'>
+            <div className='remove' onClick={removeHandler}>
                 <MdDelete />
             </div>
         </li>
