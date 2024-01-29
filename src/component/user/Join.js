@@ -6,12 +6,17 @@ import {
 
 import {AUTH_URL} from "../../config/host-config";
 import {json, useNavigate} from "react-router-dom";
+import './Join.scss'
+import anonymous from '../../assets/img/anonymous.jpg'
 
 const Join = () => {
 
     const redirection = useNavigate(); // 리다이렉트 함수를 리턴
 
     const API_BASE_URL = AUTH_URL;
+
+    // 이미지 파일을 상태변수로 관리
+    const [imgFile, setImgFile] = useState(null);
 
     // 상태변수로 회원가입 입력값 관리
     const [userValue, setUserValue] = useState({
@@ -37,7 +42,7 @@ const Join = () => {
     });
 
     // 검증이 모두 통과되면 계정 샌성 버튼을 열어주는 논리 상태변수
-    const  [lock, setLock] = useState(true);
+    const [lock, setLock] = useState(true);
 
     // 검증데이터를 상태변수 여러개에 저장하는 함수
     const saveInputState = (flag, msg, inputVal, key) => {
@@ -102,7 +107,7 @@ const Join = () => {
         }
         setUserValue({...userValue, email: email});
         setMessage({...message, email: msg});
-        setCorrect({...correct, email: flag });
+        setCorrect({...correct, email: flag});
 
 
     };
@@ -193,10 +198,21 @@ const Join = () => {
 
     // 회원가입 비동기요청을 서버로 보내는 함수
     const fetchSignUpPost = async () => {
+
+        // JSON데이터를 formData에 넣기 위한 작업
+        const jsonBlob = new Blob(
+            [ JSON.stringify(userValue) ],
+            { type: 'application/json' }
+        );
+
+        // 회원 정보 json과 프로필 이미지 사진을 하나의 multipart/formdata로 묶어줘야함
+        const formData = new FormData();
+        formData.append('user', jsonBlob);
+        formData.append('profileImage', document.getElementById('profile-img').files[0]);
+
         const res = await fetch(API_BASE_URL, {
             method: 'POST',
-            headers: {'content-type': 'application/json'},
-            body: JSON.stringify(userValue)
+            body: formData
         });
 
         if (res.status === 200) {
@@ -223,6 +239,26 @@ const Join = () => {
         }
     };
 
+    // 썸네일 영역 클릭 이벤트
+    const thumbnailClickHandler = e => {
+        document.getElementById('profile-img').click();
+    };
+
+    // 파일 선택시 썸네일 화면에 렌더링
+    const showThumbnailHandler = e => {
+
+        // 첨부된 파일의 데이터를 가져오기
+        const file = document.getElementById('profile-img').files[0];
+        // console.log(file);
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onloadend = () => {
+            setImgFile(reader.result);
+        };
+    };
+
     const {userName: un, password: pw, passwordCheck: pwc, email: em} = correct;
     useEffect(() => {
         // console.log('correct가 바뀌면 useEffect는 실행된다.');
@@ -243,6 +279,22 @@ const Join = () => {
                         <Typography component="h1" variant="h5">
                             계정 생성
                         </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <div className="thumbnail-box" onClick={thumbnailClickHandler}>
+                            <img
+                                src={imgFile || anonymous} // 이미지 파일이 있으면 anonymous 사라짐
+                                alt="profile"
+                            />
+                        </div>
+                        <label className='signup-img-label' htmlFor='profile-img'>프로필 이미지 추가</label>
+                        <input
+                            id='profile-img'
+                            type='file'
+                            style={{display: 'none'}}
+                            accept='image/*'
+                            onChange={showThumbnailHandler}
+                        />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
@@ -324,9 +376,9 @@ const Join = () => {
                             fullWidth
                             variant="contained"
                             style={
-                            lock
-                            ? {background: '#ccc'}
-                            : {background: '#38d9a9'}}
+                                lock
+                                    ? {background: '#ccc'}
+                                    : {background: '#38d9a9'}}
                             onClick={joinClickHandler}
                             disabled={lock}
                         >

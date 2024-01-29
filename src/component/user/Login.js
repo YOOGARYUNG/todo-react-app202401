@@ -29,7 +29,7 @@ const Login = () => {
         }
 
         if (res.status === 200) {
-            const {token, userName} = await res.json();
+            const {token, userName, role} = await res.json();
             // const responseData = await res.json();
             // console.log(responseData);
 
@@ -39,6 +39,7 @@ const Login = () => {
             // 2. 세션 스토리지 - 데이터를 브라우저가 종료되는 순간 삭제함
             localStorage.setItem('ACCESS_TOKEN', token);
             localStorage.setItem('USER_NAME', userName);
+            localStorage.setItem('ROLE', role);
 
 
             redirection('/');
